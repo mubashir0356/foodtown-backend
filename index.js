@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080
 connectDatabase()
     .then(() => {
         app.listen(port, () => {
-            console.log(`server is running at localhost://${port}`)
+            console.log(`server is running at http://localhost:${port}`)
         })
     })
     .catch((error) => {
