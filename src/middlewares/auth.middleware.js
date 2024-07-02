@@ -4,7 +4,9 @@ const User = require('../models/user.model');
 
 const verifyJWT = async (req, res, next) => {
     try {
+        // console.log(req.cookies, "cookies")
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
+        // console.log(token, "jwtToken")
         if (!token) {
             return res.status(401).json(new APIError(401, "Unauthorized user"))
         }

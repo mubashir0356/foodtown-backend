@@ -118,7 +118,7 @@ const logoutUser = async (req, res) => {
             secure: true
         }
 
-        return res.status(200).clearCookie("accessToken", options).json(new APIResponse(200, {}, "User logut successfully."))
+        return res.status(200).clearCookie("accessToken", options).json(new APIResponse(200, {}, "User logout successfully."))
     } catch (error) {
 
         console.log("UserController :: logoutUser :: error: ", error)
