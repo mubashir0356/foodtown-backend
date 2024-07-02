@@ -63,9 +63,19 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, mobile, password } = req.body
-        if (!email && !mobile) {
+        const { emailOrMobile, password } = req.body
+
+        let email = null
+        let mobile = null
+
+        if (!emailOrMobile) {
             return res.status(400).json(new APIError(400, "User email or mobile is required."))
+        }
+
+        if (Number.isNaN(Number(emailOrMobile))) {
+            email = emailOrMobile
+        } else {
+            mobile = emailOrMobile
         }
 
         const user = await User.findOne({
@@ -102,7 +112,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        console.log(req, "logout request")
+
         const options = {
             httpOnly: true,
             secure: true
