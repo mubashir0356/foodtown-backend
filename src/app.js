@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
 const userRouter = require('./routes/user.routes');
+const restaurantRouter = require('./routes/restaurant.routes');
 
 const app = express()
 
@@ -33,5 +34,6 @@ app.use(express.static("public"))
 app.get("/", (req, res) => res.send("Food town server running"))
 
 app.use("/foodtown/api/users", userRouter)
+app.use("/foodtown/api/restaurants", restaurantRouter)
 
 module.exports = app
