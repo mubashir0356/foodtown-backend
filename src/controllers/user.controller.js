@@ -1,6 +1,8 @@
 const User = require("../models/user.model")
 const APIError = require("../utils/APIError")
 const APIResponse = require("../utils/APIResponse")
+const mongoose = require("mongoose")
+
 
 const generateAccessToken = async (userId) => {
     try {
@@ -125,4 +127,24 @@ const logoutUser = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, logoutUser }
+const getUserDetails = async (req, res) => {
+    try {
+        const { userId } = req.params
+
+        if (!userId) {
+            return res.status(new APIError(400, "userId is missing"))
+        }
+
+        if (!mongoose.isValidObjectId(userId)) {
+            return res.status(400).json(new APIError(400, `${userId} is not a valid object id.`))
+        }
+
+        const userData = await User.findById(userId).select("-password")
+
+        return res.status(200).json(new APIResponse(200, userData, "User details fetched succefully"))
+    } catch (error) {
+        console.log("User Route :: Get User Controller :: Error ::", error)
+    }
+}
+
+module.exports = { registerUser, loginUser, logoutUser, getUserDetails }
