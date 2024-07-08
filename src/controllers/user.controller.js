@@ -2,7 +2,52 @@ const User = require("../models/user.model")
 const APIError = require("../utils/APIError")
 const APIResponse = require("../utils/APIResponse")
 const mongoose = require("mongoose")
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
 
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: "mubashir2u@gmail.com",
+        pass: process.env.EMAIL_PASSWORD,
+    },
+});
+
+const sendWelcomeEmail = async (data) => {
+    const { username, userEmail } = data;
+
+    const htmlFilePath = path.join(
+        __dirname,
+        "../emailTemplates",
+        "welcomeEmail.html"
+    );
+
+    const htmlContent = fs.readFileSync(htmlFilePath, "utf-8");
+
+    const modifiedHtmlContent = htmlContent.replace("{{userName}}", username);
+
+    const mailOptions = {
+        from: "mubashir2u@gmail.com",
+        to: userEmail,
+        subject: "Welcome to Food Town",
+        html: modifiedHtmlContent,
+        // attachments: [
+        //     {
+        //         filename: 'logo.png',
+        //         path: path.join(__dirname, 'logo.png'),
+        //         cid: 'logo' // same cid value as in the HTML img src
+        //     }
+        // ]
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log("Error while sending email", error);
+        }
+        console.log("Email sent: " + info.response);
+    });
+};
 
 const generateAccessToken = async (userId) => {
     try {
@@ -55,6 +100,13 @@ const registerUser = async (req, res) => {
         if (!user) {
             return res.status(500).json(new APIError(500, "Something went wrong while creating the user."))
         }
+
+        const emailData = {
+            username: name,
+            userEmail: email,
+        };
+
+        sendWelcomeEmail(emailData);
 
         return res.status(201).json(new APIResponse(201, user, "User created successfully."))
 
