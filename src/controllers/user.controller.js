@@ -6,6 +6,8 @@ const nodemailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 
+// ----------------------- emails section starts here ----------------------------------
+
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -49,6 +51,83 @@ const sendWelcomeEmail = async (data) => {
     });
 };
 
+const sendOtpEmail = async (data) => {
+    const { emailOTP, userEmail, username, otpFor } = data;
+
+    const emailSubject = otpFor === "email verification" ? "Email Verification" : "Reset Password"
+
+    const htmlFilePath = path.join(
+        __dirname,
+        "../emailTemplates",
+        "emailOtp.html"
+    );
+
+    const htmlContent = fs.readFileSync(htmlFilePath, "utf-8");
+
+    const modifiedHtmlContent = htmlContent
+        .replace("{{userName}}", username)
+        .replace("{{otp}}", emailOTP)
+        .replace("{{reason}}", otpFor);
+
+    const mailOptions = {
+        from: "mohammadashraf7005@gmail.com",
+        to: userEmail,
+        subject: emailSubject,
+        html: modifiedHtmlContent,
+        // attachments: [
+        //     {
+        //         filename: 'logo.png',
+        //         path: path.join(__dirname, 'logo.png'),
+        //         cid: 'logo' // same cid value as in the HTML img src
+        //     }
+        // ]
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log("Error while sending email", error);
+        }
+    });
+};
+
+// ----------------------- emails section ends here ----------------------------------
+
+const validateUserDetails = async (name, password, email, mobile) => {
+    try {
+        if (!name || !email || !password || !mobile) {
+            return { isValidUser: false, errorStatusCode: 400, errorMessage: "Fill all the fields" }
+        }
+
+        const userName = await User.findOne({ name });
+
+        if (userName) {
+            return { isValidUser: false, errorStatusCode: 409, errorMessage: "User name already exists" }
+        }
+
+        const userEmail = await User.findOne({ email });
+
+        if (userEmail) {
+            return { isValidUser: false, errorStatusCode: 409, errorMessage: "User email already exists" }
+        }
+
+        const userMobile = await User.findOne({ mobile });
+
+        if (userMobile) {
+            return { isValidUser: false, errorStatusCode: 409, errorMessage: "Mobile number already used" }
+        }
+
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])/;
+        if (password.length < 8 || !passwordRegex.test(password)) {
+            return { isValidUser: false, errorStatusCode: 400, errorMessage: "Password must be at least 8 characters long and contain at least one uppercase letter and one special character" }
+        }
+
+        return { isValidUser: true, errorStatusCode: 200, errorMessage: "sucess" }
+
+    } catch (error) {
+        return { isValidUser: false, errorStatusCode: 500, errorMessage: "Internal server error" };
+    }
+};
+
 const generateAccessToken = async (userId) => {
     try {
         const user = await User.findById(userId)
@@ -63,31 +142,11 @@ const generateAccessToken = async (userId) => {
 const registerUser = async (req, res) => {
     try {
         const { name, password, email, mobile } = req.body
-        if (!name || !email || !password || !mobile) {
-            return res.status(400).json(new APIError(400, "Fill all the fields"))
-        }
 
-        const userName = await User.findOne({ name })
+        const { isValidUser, errorStatusCode, errorMessage } = await validateUserDetails(name, password, email, mobile);
 
-        if (userName) {
-            return res.status(409).json(new APIError(409, "User name already exists"))
-        }
-
-        const userEmail = await User.findOne({ email })
-
-        if (userEmail) {
-            return res.status(409).json(new APIError(409, "User email already exists"))
-        }
-
-        const userMobile = await User.findOne({ mobile })
-
-        if (userMobile) {
-            return res.status(409).json(new APIError(409, "Mobile number already used"))
-        }
-
-        const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])/;
-        if (password.length < 8 || !passwordRegex.test(password)) {
-            return res.status(400).json(new APIError(400, "Password must be at least 8 characters long and contain at least one uppercase letter and one special character"))
+        if (!isValidUser) {
+            return res.status(errorStatusCode).json(new APIError(errorStatusCode, errorMessage))
         }
 
         const user = await User.create({
@@ -199,51 +258,20 @@ const getUserDetails = async (req, res) => {
     }
 }
 
-const sendOtpEmail = async (data) => {
-    const { emailOTP, userEmail, username, otpFor } = data;
-
-    const emailSubject = otpFor === "email verification" ? "Email Verification" : "Reset Password"
-
-    const htmlFilePath = path.join(
-        __dirname,
-        "../emailTemplates",
-        "emailOtp.html"
-    );
-
-    const htmlContent = fs.readFileSync(htmlFilePath, "utf-8");
-
-    const modifiedHtmlContent = htmlContent
-        .replace("{{userName}}", username)
-        .replace("{{otp}}", emailOTP)
-        .replace("{{reason}}", otpFor);
-
-    const mailOptions = {
-        from: "mohammadashraf7005@gmail.com",
-        to: userEmail,
-        subject: emailSubject,
-        html: modifiedHtmlContent,
-        // attachments: [
-        //     {
-        //         filename: 'logo.png',
-        //         path: path.join(__dirname, 'logo.png'),
-        //         cid: 'logo' // same cid value as in the HTML img src
-        //     }
-        // ]
-    };
-
-    await transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log("Error while sending email", error);
-        }
-    });
-};
-
 const sendEmailOtpController = async (req, res) => {
-    const { emailOTP, email, username, otpFor } = req.body;
+    const { password, mobile, emailOTP, email, username, otpFor } = req.body;
 
     const emailData = { emailOTP, userEmail: email, username, otpFor };
     try {
+
+        const { isValidUser, errorStatusCode, errorMessage } = await validateUserDetails(username, password, email, mobile);
+
+        if (!isValidUser) {
+            return res.status(errorStatusCode).json(new APIError(errorStatusCode, errorMessage));
+        }
+
         sendOtpEmail(emailData);
+
         return res
             .status(200)
             .json(new APIResponse(200, {}, "Email OTP sent successfully"));
