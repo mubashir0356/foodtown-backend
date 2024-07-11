@@ -8,7 +8,45 @@ const restaurantSchema = new mongoose.Schema({
         trim: true,
         index: true
     },
-})
+    address: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true,
+    },
+    mobile: {
+        type: Number,
+        required: true,
+        unique: true,
+        trim: true,
+    },
+    fromTime: {
+        type: String,
+        required: true,
+    },
+    toTime: {
+        type: String,
+        required: true,
+    },
+    logo: {
+        url: {
+            type: String, //cloudinary url
+            required: true
+        },
+        publicID: {
+            type: String,
+            required: true
+        }
+    },
+    cuisines: {
+        type: [String],  // This is an array of strings
+        required: true,
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
+}, { timestamps: true })
 
 const Restaurant = mongoose.model("Restaurant", restaurantSchema)
 

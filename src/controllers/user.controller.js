@@ -283,10 +283,34 @@ const sendEmailOtpController = async (req, res) => {
     }
 };
 
+const validateUserController = async (req, res) => {
+    try {
+        const { name, email, mobile, password } = req.body;
+        const { isValidUser, errorStatusCode, errorMessage } =
+            await validateUserDetails(name, password, email, mobile);
+
+        if (!isValidUser) {
+            return res
+                .status(errorStatusCode)
+                .json(new APIError(errorStatusCode, errorMessage));
+        }
+
+        return res
+            .status(errorStatusCode)
+            .json(new APIResponse(errorStatusCode, {}, errorMessage));
+    } catch (error) {
+        console.log(
+            "User controller :: Validate User Controller :: Error :",
+            error
+        );
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     logoutUser,
     getUserDetails,
-    sendEmailOtpController
+    sendEmailOtpController,
+    validateUserController
 }
