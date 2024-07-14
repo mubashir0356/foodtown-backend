@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 
 const userRouter = require('./routes/user.routes');
 const restaurantRouter = require('./routes/restaurant.routes');
+const dishRouter = require("./routes/dish.routes")
 
 const app = express()
 
@@ -35,5 +36,6 @@ app.get("/", (req, res) => res.send("Food town server running"))
 
 app.use("/foodtown/api/users", userRouter)
 app.use("/foodtown/api/restaurants", restaurantRouter)
+app.use("/foodtown/api/dishes", dishRouter)
 
 module.exports = app

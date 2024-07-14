@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to FOOD TOWN</title>
+    <title>Food Item Added Successfully!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,9 +36,10 @@
             /* Adjust the size of the logo */
         }
 
-        .welcome-message {
+        .success-message {
             font-size: 1.5rem;
             font-weight: bold;
+            color: green;
             margin-bottom: 1rem;
         }
 
@@ -87,10 +88,12 @@
             <img src="https://res.cloudinary.com/djuarsvxl/image/upload/v1720420061/navLogo_lxb8gg.png"
                 alt="FOOD TOWN Logo">
         </div>
-        <div class="welcome-message">Welcome, {{userName}}!</div>
-        <div class="message">Welcome to FOOD TOWN! We're excited to have you here.</div>
-        <div class="message">Get ready to explore a world of delicious meals delivered right to your doorstep.</div>
-        <a target="_blank" href="https://mubashirfoodtown.netlify.app/" class="cta-button">Start Exploring</a>
+        <div class="success-message">Dish Added Successfully!</div>
+        <div class="message">Congratulations, <b>{{foodItemName}}</b> has been successfully added to your <b>
+                {{restaurantName}}</b> restaurant's menu!</div>
+        <div class="message">Thank you for updating your menu at FOOD TOWN. We're excited to see your restaurant grow.
+        </div>
+        <a target="_blank" href="https://mubashirfoodtown.netlify.app/" class="cta-button">View Your Menu</a>
         <div class="footer">
             <p>Feel free to contact us:</p>
             <p>Email: <a href="mubashir0356@gmail.com">mubashir0356@gmail.com</a></p>
