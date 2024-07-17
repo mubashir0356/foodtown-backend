@@ -242,9 +242,90 @@ const getRestaurantDetails = async (req, res) => {
     }
 }
 
+const getAllUserRestaurants = async (req, res) => {
+    const { page } = req.query || 1;
+
+    const itemsPerPage = 8;
+    const skipCount = (page - 1) * itemsPerPage;
+
+    try {
+
+        const restaurants = await Restaurant.find()
+            .skip(skipCount)
+            .limit(itemsPerPage)
+
+        return res.status(200).json(new APIResponse(200, restaurants, "Restaurants fetched successfully"))
+
+    } catch (error) {
+        console.log(
+            "Restaurant Controller :: Get All User Restaurants :: Error ",
+            error
+        );
+    }
+};
+
+const getRestaurantWithDishes = async (req, res) => {
+    const { restaurantId } = req.params;
+    try {
+        if (!restaurantId) {
+            return res.status(400).json(new APIError(400, "restaurant id is required."));
+        }
+
+        const restaurant = await Restaurant.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(restaurantId) }
+            },
+            {
+                $lookup: {
+                    from: "dishes",
+                    localField: "_id",
+                    foreignField: "restaurant",
+                    as: "dishesData"
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "ownerData",
+                    pipeline: [
+                        {
+                            $project: {
+                                name: 1,
+                                email: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $unwind: "$ownerData"
+            }
+        ])
+
+        return res
+            .status(200)
+            .json(
+                new APIResponse(
+                    200,
+                    restaurant[0],
+                    "Restaurant data fetched successfully."
+                )
+            );
+    } catch (error) {
+        console.log(
+            "Restaurant Controller :: Get Restaurant with Dishes :: Error ",
+            error
+        );
+    }
+};
+
 module.exports = {
     verifyHotelExists,
     registerRestaurant,
     uploadRestaurantImage,
-    getRestaurantDetails
+    getRestaurantDetails,
+    getAllUserRestaurants,
+    getRestaurantWithDishes
 };

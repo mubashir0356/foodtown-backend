@@ -4,7 +4,10 @@ const upload = require("../middlewares/multer.middleware");
 const {
     verifyHotelExists,
     registerRestaurant,
-    uploadRestaurantImage, getRestaurantDetails
+    uploadRestaurantImage,
+    getRestaurantDetails,
+    getAllUserRestaurants,
+    getRestaurantWithDishes
 } = require("../controllers/restaurant.controller");
 
 const restaurantRouter = Router();
@@ -19,5 +22,11 @@ restaurantRouter
     .post(upload.single("restaurantImg"), uploadRestaurantImage);
 
 restaurantRouter.route("/getRestaurantData/:userId").get(verifyJWT, getRestaurantDetails)
+
+restaurantRouter
+    .route("/getAllRestaurants")
+    .get(verifyJWT, getAllUserRestaurants);
+
+restaurantRouter.route("/restaurantDishes/:restaurantId").get(getRestaurantWithDishes)
 
 module.exports = restaurantRouter;
