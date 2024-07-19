@@ -6,6 +6,7 @@ const userRouter = require('./routes/user.routes');
 const restaurantRouter = require('./routes/restaurant.routes');
 const dishRouter = require("./routes/dish.routes");
 const bagRouter = require('./routes/bag.routes');
+const orderRouter = require("./routes/order.routes")
 
 const app = express()
 
@@ -39,5 +40,6 @@ app.use("/foodtown/api/users", userRouter)
 app.use("/foodtown/api/restaurants", restaurantRouter)
 app.use("/foodtown/api/dishes", dishRouter)
 app.use("/foodtown/api/bags", bagRouter)
+app.use("/foodtown/api/orders", orderRouter)
 
 module.exports = app

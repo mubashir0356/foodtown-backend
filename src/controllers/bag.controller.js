@@ -175,13 +175,13 @@ const clearBag = async (req, res) => {
 
 const addBag = async (req, res) => {
     const { restaurantId } = req.params;
-    const { dishId } = req.body;
+    const { dishId, dishAmount } = req.body;
     const userId = req.user._id;
 
     try {
         const updatedBag = await Bag.findOneAndUpdate(
             { userId, restaurantId },
-            { $addToSet: { dishes: { dishId, quantity: 1 } } },
+            { $addToSet: { dishes: { dishId, quantity: 1, dishAmount } } },
             { new: true, upsert: true }
         );
 
@@ -189,7 +189,7 @@ const addBag = async (req, res) => {
             await Bag.create({
                 userId,
                 restaurantId,
-                dishes: [{ dishId, quantity: 1 }],
+                dishes: [{ dishId, quantity: 1, dishAmount }],
             });
         }
 
