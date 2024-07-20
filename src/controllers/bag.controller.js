@@ -7,8 +7,8 @@ const Dish = require("../models/dish.model");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const getBagData = async (req, res) => {
+    const { userId } = req.params
     try {
-        const userId = req.user._id;
         const bagData = await Bag.findOne({ userId });
         return res
             .status(200)
