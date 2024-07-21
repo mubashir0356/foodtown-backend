@@ -9,7 +9,7 @@ const path = require("path");
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "mohammadashraf7005@gmail.com",
+        user: "mubashir2u@gmail.com",
         pass: process.env.EMAIL_PASSWORD,
     },
 });
@@ -31,8 +31,8 @@ const sendQueryMailToAdmin = async (data) => {
         .replace("{{subject}}", subject);
 
     const mailOptions = {
-        from: "mohammadashraf7005@gmail.com",
-        to: "mohammadashraf7005@gmail.com",
+        from: "mubashir2u@gmail.com",
+        to: "mubashir2u@gmail.com",
         subject: "From Food Town Contact Us Form",
         html: modifiedHtmlContent,
         // attachments: [
@@ -64,7 +64,7 @@ const sendQueryMailToUser = async (data) => {
     const modifiedHtmlContent = htmlContent.replace("{{name}}", name)
 
     const mailOptions = {
-        from: "mohammadashraf7005@gmail.com",
+        from: "mubashir2u@gmail.com",
         to: email,
         subject: "Food Town :: Contact Us",
         html: modifiedHtmlContent,
